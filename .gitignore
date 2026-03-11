@@ -1,0 +1,15 @@
+.env
+
+#virtual Enviroment
+.venv/
+virtualenv/
+
+__pycache__/
+*.pyc
+
+
+.idea/
+
+#Poetry
+dist/
+

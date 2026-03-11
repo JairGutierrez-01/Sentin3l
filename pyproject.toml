@@ -1,0 +1,20 @@
+[project]
+name = "sentin3l"
+version = "0.1.0"
+description = "Cybersecurity suite for phishing detection"
+authors = [
+    {name = "Luis Jair Gutierrez Pacheco", email = "ljair78gp@hotmail.com"}
+]
+license = {text = "MIT"}
+requires-python = ">=3.14"
+dependencies = ["fastapi (>=0.135.1,<0.136.0)", "uvicorn (>=0.41.0,<0.42.0)", "python-dotenv (>=1.2.2,<2.0.0)"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "bandit (>=1.9.4,<2.0.0)",
+    "black (>=26.3.0,<27.0.0)"
+]
