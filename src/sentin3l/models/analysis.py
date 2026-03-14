@@ -26,66 +26,27 @@ Out of scope for now: (3-03-2026)
 Not to forget: ObservedResource 1 ─── N Analysis
 """
 
-# TODO: inherit from Base
-# TODO: define __tablename__ = "analyses"
+from sqlalchemy.orm import relationship
+from sqlalchemy import Column, DateTime, Integer, String, ForeignKey, Text
+from datetime import datetime, timezone
 
-# TODO: add primary key field
-# Expected:
-# - id
-# - integer primary key
-# - indexed if useful
+from sentin3l.database.session import Base
 
-# TODO: add foreign key to ObservedResource
-# Expected:
-# - observed_resource_id
-# - required field
-# - links one analysis to one observed resource
+class Analysis(Base):
+    __tablename__ = "analyses"
 
-# TODO: add analysis timestamp
-# Expected:
-# - analyzed_at
-# - UTC-aware datetime
-# - required field
-# - default current UTC time
+    id = Column(Integer, primary_key=True, index=True)
+    observed_resource_id = Column(Integer, ForeignKey("observed_resources.id", ondelete="CASCADE"), nullable=False)
+    analyzed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    suspicion_score = Column(Integer, default=0, nullable=False)
+    risk_level = Column(String, nullable=False, default="Low")
 
-# TODO: add suspicion score field
-# Expected:
-# - numerical value
-# - MVP can start with integer
-# - exact scoring strategy may evolve later
+    explanation_text = Column(Text, nullable=False)
+    recommendation_text = Column(Text, nullable=False)
 
-# TODO: add risk level field
-# Expected:
-# - simple text classification
-# - examples: low / medium / high
-# - keep simple in MVP
-
-# TODO: add explanation field
-# Expected:
-# - human-readable text
-# - explains why the URL may be suspicious
-# - required for explainability in MVP
-
-# TODO: add recommendation field
-# Expected:
-# - plain-language user guidance
-# - examples:
-#   - proceed with caution
-#   - avoid opening the link
-#   - verify the sender
-
-# TODO: decide whether detector_version belongs in MVP or later
-# Possible future field:
-# - detector_version
-# This may help if scoring logic changes over time,
-# but it is not required in the first implementation.
-
-# TODO: add relationship to ObservedResource later
-# This can be added once multiple models are connected cleanly.
-
-# TODO: add relationship to AnalysisFlag later
-# One analysis will likely have many AnalysisFlag records.
-
+    #Relations
+    resource = relationship("ObservedResource", back_populates="analyses")
+    flags = relationship("AnalysisFlag", back_populates="analysis", cascade="all, delete-orphan")
 # -----------------------------------------------------------------------------
 # MVP notes
 # -----------------------------------------------------------------------------

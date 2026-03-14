@@ -25,57 +25,41 @@ maybe in the future (truly important but not for the beginning)
     - AnalysisFlag.flag_definition_id
 
 conceptual relation: Analysis 1 ─── N AnalysisFlag
+remember to use constants for the string like "FLAG_LONG_URL = "LONG_URL"
 """
 
-# TODO: inherit from Base
-# TODO: define __tablename__ = "analysis_flags"
+from sqlalchemy import Column, Integer, String, ForeignKey, Text
+from sqlalchemy.orm import relationship
 
-# TODO: add primary key field
-# Expected:
-# - id
-# - integer primary key
+from sentin3l.database.session import Base
 
-# TODO: add foreign key to Analysis
-# Expected:
-# - analysis_id
-# - required field
-# - links each flag record to one analysis
+class AnalysisFlag(Base):
+    __tablename__ = "analysis_flag"
 
-# TODO: decide how to represent the flag identity in MVP
-# MVP options:
-# - simple string field such as flag_code
-# - future foreign key to FlagDefinition
-#
-# Recommendation for MVP:
-# - start with a simple flag_code string
-# - keep future FlagDefinition as an optional later improvement
+    id = Column(Integer, primary_key=True, index=True)
 
-# TODO: add flag_code field
-# Expected:
-# - simple string identifier
-# - examples:
-#   - IP_IN_HOST
-#   - LONG_URL
-#   - SUSPICIOUS_KEYWORD
-#   - EXCESSIVE_SUBDOMAINS
+    analysis_id = Column (
+        Integer,
+        ForeignKey("analyses.id", ondelete="CASCADE"),
+        nullable=False
+    )
 
-# TODO: add weight_applied field
-# Expected:
-# - numerical value
-# - represents how much this flag contributed to the final score
-# - may start as integer in MVP
+    flag_definition_id = Column (
+        Integer,
+        ForeignKey("flag_definitions.id"),
+        nullable=False
+    )
 
-# TODO: decide whether evidence_summary belongs in MVP
-# Possible field:
-# - short text describing why the flag was triggered
-# Example:
-# - "Host uses a direct IP address"
-# - "URL length exceeded configured threshold"
-#
-# This can be useful for transparency, but may remain optional in MVP.
+    #detection details - how much this flags affects the score -
+    weight_applied = Column(Integer, nullable=False, default= 0 )
 
-# TODO: add relationship to Analysis later
-# One analysis will likely have many AnalysisFlag records.
+    #evidence like : if the flag is SUSPICIOUS_KEYWORD then evidence could be like "login"
+    evidence_summary = Column(String, nullable=False)
+
+    #Relations
+    analysis = relationship("Analysis", back_populates="flags")
+    definition = relationship("FlagDefinition", back_populates="flags")
+
 
 # -----------------------------------------------------------------------------
 # MVP notes
