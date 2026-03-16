@@ -34,38 +34,64 @@ Related future modules:
     - Explanation service
 """
 
-# TODO: import required database session dependencies
-# TODO: import ObservedResource model
+from sqlalchemy.orm import Session
+from datetime import datetime, timezone
+from typing import Optional
 
-# -----------------------------------------------------------------------------
-# MVP responsibilities
-# -----------------------------------------------------------------------------
+from sentin3l.models.observed_resource import ObservedResource
 
-# TODO: define a function to create a new ObservedResource
-# Expected responsibility:
-# - receive the minimum required technical fields
-# - create the database object
-# - persist it
-# - return the created resource
 
-# TODO: define a function to find an existing ObservedResource
-# Expected responsibility:
-# - search by stable technical identifier
-# - initially this may use normalized_url_hash
-# - later this may evolve depending on normalization strategy
+def get_resource_by_hash(
+        db: Session,
+        normalized_url_hash: str
+) -> Optional[ObservedResource]:
 
-# TODO: define a function to update occurrence tracking
-# Expected responsibility:
-# - increment occurrence_count
-# - update last_seen_at
-# - persist the changes
+    return db.query(ObservedResource).filter(
+        ObservedResource.normalized_url_hash == normalized_url_hash
+    ).first()
 
-# TODO: define a function to get or create an ObservedResource
-# Expected responsibility:
-# - check whether the resource already exists
-# - if it exists, update occurrence tracking
-# - if it does not exist, create a new one
-# - return the resulting resource
+
+def create_resource(
+        db: Session,
+        normalized_url_hash: str,
+        hostname: str,
+        registrable_domain: str
+) -> ObservedResource:
+
+    resource = ObservedResource(
+        normalized_url_hash=normalized_url_hash,
+        hostname=hostname,
+        registrable_domain=registrable_domain
+    )
+    db.add(resource)
+    db.commit()
+    db.refresh(resource)
+    return resource
+
+
+def update_occurrence(db: Session, resource: ObservedResource) -> ObservedResource:
+
+    resource.occurrence_count += 1
+    resource.last_seen_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(resource)
+    return resource
+
+
+def get_or_create_resource(
+        db: Session,
+        normalized_url_hash: str,
+        hostname: str,
+        registrable_domain: str,
+) -> ObservedResource:
+
+
+    resource = get_resource_by_hash(db, normalized_url_hash)
+
+    if resource:
+        return update_occurrence(db, resource)
+    else:
+        return create_resource(db, normalized_url_hash, hostname, registrable_domain)
 
 # -----------------------------------------------------------------------------
 # Design notes
