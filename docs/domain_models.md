@@ -304,115 +304,7 @@ Example contributions:
 
 This object helps explain scoring logic but does not need to be stored in the database.
 
-## 6. Future Entities (Outside MVP)
-
-The following entities represent concepts that may be added in later phases of Sentin3l.
-
-They are documented here to provide architectural foresight but will not be implemented in the MVP.
-
-### 1.LeakCheckRequest
-Description:
-
-> Represents a request to check whether an identity or domain appears in known data leak contexts.
-
-Possible inputs:
-
-- email
-
-- domain
-
-- username
-
-- hash fragment
-
-- breach identifier
-
-**Privacy note**
-
-The system will avoid storing raw credential data whenever possible.
-
-### 2. LeakMatchSummary
-Description:
-
->Represents the summarized result of a leak detection process.
-
-Possible attributes:
-
-- match_found
-
-- source_count
-
-- confidence_level
-
-- exposure_categories
-
-- exposure_timestamps
-
-### 3. BreachSourceReference
-Description:
-
-> Represents a reference to a breach dataset or intelligence source.
-
-Possible attributes:
-
-- source_name
-
-- source_type
-
-- reference_id
-
-- first_indexed_at
-
-- reliability_level
-
-### 4. ExposureArtifact
-Description:
-
->Represents sanitized technical evidence of a leak exposure.
-
-Examples may include:
-
-- email domain exposure
-
-- credential pattern type
-
-- hash prefix
-
-- data category
-
-- Sensitive raw credentials should never be stored.
-
-### 5. DomainExposureRecord
-Description:
-
->Represents aggregated exposure information associated with a domain.
-
-Possible attributes:
-
-- domain
-
-- exposure_count
-
-- last_observed_exposure
-
-- associated_sources
-
-### 6. IdentityArtifact
-Description:
-
->Represents an identity-related artifact that may be analyzed in leak detection contexts.
-
-Examples:
-
-- email identifier
-
-- username
-
-- account alias
-
-Because of privacy risks, this entity must be handled with extreme care and is intentionally excluded from the MVP.
-
-## 7. Core Relationships
+## 6. Core Relationships
 
 The core relationships of the MVP model can be summarized as follows.
 
@@ -425,7 +317,7 @@ One analysis may produce multiple flags.
 ### FlagDefinition → AnalysisFlag
 A flag type may appear in many analyses.
 
-## 8. MVP Minimal Persistent Model
+## 7. MVP Minimal Persistent Model
 
 > The minimal persistent schema required for the MVP can be summarized as:
 
@@ -439,7 +331,7 @@ FlagDefinition
 
 All other entities operate as internal domain objects or future architectural extensions.
 
-## 9. Version Note
+## 8. Version Note
 
 This document represents Domain Model v0.1.
 

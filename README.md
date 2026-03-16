@@ -12,7 +12,7 @@ Sentin3l is focused on:
 
 - **Spotting the "push":** Identifying urgency and manipulation in messages.
 
-- **Cracking the code:** Understanding why certain passwords are easy targets before they ever get leaked.
+- **Decoding Deception:** Understanding the technical indicators that turn a normal link into a threat.
 
 ## My not negotiable rules
 
@@ -36,7 +36,7 @@ Sentin3l focuses on detecting and explaining common phishing indicators such as:
 
 - **Social Engineering**: Spotting the "mental hacks" used in manipulative language.
 
-- **Digital Hygiene**: Analyzing weak patterns that put your credentials at risk.
+- Social Engineering: Spotting the "mental hacks" used in manipulative language to force a click.
 
 ---
 

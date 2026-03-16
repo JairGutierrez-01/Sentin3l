@@ -47,12 +47,6 @@ The system may store limited technical metadata for analysis improvement and sta
 - detection flags
 - counts and frequency statistics
 
-The system must not store:
-
-- user passwords
-- credential inputs
-- raw sensitive secrets
-
 ## 7. Privacy Principles
 
 Sentin3l is designed with a privacy-conscious approach.
@@ -60,7 +54,6 @@ Sentin3l is designed with a privacy-conscious approach.
 Core privacy principles include:
 
 - minimal retention
-- no password storage
 - no unnecessary collection of personal data
 - storage of technical indicators instead of raw sensitive input where possible
 
@@ -76,11 +69,8 @@ Included in the MVP:
 
 Not included in the MVP:
 
-- user authentication
-- account creation
-- credential storage
 - full breach intelligence platform behavior
-- large-scale OSINT capabilities
+- large scale OSINT capabilities
 
 ## 9. Design Philosophy
 
