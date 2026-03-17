@@ -24,35 +24,32 @@ def test_update_occurrence_direct(db_session):
     assert updated_resource.occurrence_count == 2
     assert updated_resource.last_seen_at is not None
 
-def test_get_or_create_resource_when_new(db_session):
 
-    fake_hash = "abc123hash"
+def test_get_or_create_resource_when_new(db_session):
+    raw_url = "https://login.fake-bank.co.uk/auth?token=super-secret"
 
     resource = get_or_create_resource(
         db=db_session,
-        normalized_url_hash=fake_hash,
-        hostname="login.fake-bank.com",
-        registrable_domain="example.com"
+        raw_url=raw_url
     )
 
     assert resource.id is not None
-    assert resource.normalized_url_hash == fake_hash
+    assert resource.registrable_domain == "fake-bank.co.uk"
     assert resource.occurrence_count == 1
 
 
 def test_get_or_create_resource_when_existing(db_session):
+    # Test URL
+    raw_url = "https://login.fake-bank.co.uk/auth?token=different-token"
 
-    fake_hash = "abc123hash-existing"
-    fake_host = "login.fake-bank.com"
-    fake_domain = "example.com"
+    get_or_create_resource(db_session, raw_url=raw_url)
 
+    resource_updated = get_or_create_resource(db_session, raw_url=raw_url)
 
-    get_or_create_resource(db_session, fake_hash, fake_host, fake_domain)
+    total_records = db_session.query(ObservedResource).filter_by(
+        normalized_url_hash=resource_updated.normalized_url_hash
+    ).count()
 
-
-    resource_updated = get_or_create_resource(db_session, fake_hash, fake_host, fake_domain)
-
-    total_records = db_session.query(ObservedResource).filter_by(normalized_url_hash=fake_hash).count()
     assert total_records == 1
     assert resource_updated.occurrence_count == 2
 

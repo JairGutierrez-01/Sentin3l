@@ -65,6 +65,5 @@ class Analysis(Base):
 # -----------------------------------------------------------------------------
 
 # TODO: consider storing structured score breakdown later
-# TODO: consider storing model or detector version later
 # TODO: consider adding confidence score later
 # TODO: consider adding analysis source metadata later

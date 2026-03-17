@@ -92,38 +92,9 @@ Notes
 This is the central entity of the analysis system, connecting the analyzed resource with the detection results.
 
 ---
-### 3. Analysis Description
-
-> Represents a single execution of the Sentin3l analysis pipeline.
-
-> Each analysis corresponds to one evaluation of a submitted URL and stores the final result of the detection process.
-
-Possible attributes:
-
-- id
-
-- observed_resource_id
-
-- analyzed_at
-
-- suspicion_score
-
-- risk_level
-
-- explanation_text
-
-- recommendation_text
-
-- detector_version (optional)
-
-Notes
-
-This is the central entity of the analysis system, connecting the analyzed resource with the detection results.
-
----
 
 
-### 4.AnalysisFlag
+### 3.AnalysisFlag
 Description:
 
 >Represents a flag or indicator detected during a specific analysis.
@@ -146,7 +117,7 @@ Notes
 
 This entity links the detection signals to the specific analysis in which they were triggered.
 
-### 5.FlagDefinition
+### 4.FlagDefinition
 Description
 
 >Represents a catalog of all possible detection flags used by the system.

@@ -20,7 +20,5 @@ class ObservedResource(Base):
     #Relations
     analyses = relationship("Analysis", back_populates="resource", cascade="all, delete-orphan")
 
-# Still have to decide if  normalized_url_hash is gonna be unique or not.
-# decide if there is gonna be composite constraint to avoid duplicates in hostname/domain
 # decidie if is convenient to save some additional hash for the path
 # maybe add more relations with analysis

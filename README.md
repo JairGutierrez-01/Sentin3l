@@ -1,5 +1,7 @@
 # Sentin3l
- Sentin3l is an interactive lab I built to help people get better at catching the stuff we have seen several times: phishing, credential risks, and sketchy online behavior.
+ 
+
+Sentin3l is an interactive lab I built to help people get better at catching the stuff we have seen several times: phishing and sketchy online behavior.
 
 The idea isn’t just to slap a "malicious" label on something, it’s about helping you see the "why" behind the threat.
 ## Why? 

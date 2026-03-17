@@ -39,11 +39,12 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from sentin3l.models.observed_resource import ObservedResource
+from sentin3l.utils.url_tools import process_url_for_storage
 
 
 def get_resource_by_hash(
         db: Session,
-        normalized_url_hash: str
+        normalized_url_hash: str,
 ) -> Optional[ObservedResource]:
 
     return db.query(ObservedResource).filter(
@@ -80,18 +81,23 @@ def update_occurrence(db: Session, resource: ObservedResource) -> ObservedResour
 
 def get_or_create_resource(
         db: Session,
-        normalized_url_hash: str,
-        hostname: str,
-        registrable_domain: str,
+        raw_url:str,
 ) -> ObservedResource:
 
-
-    resource = get_resource_by_hash(db, normalized_url_hash)
+    # privacy filter
+    url_data = process_url_for_storage(raw_url)
+    # threat already seen?
+    resource = get_resource_by_hash(db, url_data['normalized_url_hash'])
 
     if resource:
         return update_occurrence(db, resource)
     else:
-        return create_resource(db, normalized_url_hash, hostname, registrable_domain)
+        return create_resource(
+            db = db,
+            normalized_url_hash=url_data['normalized_url_hash'],
+            hostname=url_data['hostname'],
+            registrable_domain=url_data['registrable_domain']
+        )
 
 # -----------------------------------------------------------------------------
 # Design notes
@@ -120,8 +126,5 @@ def get_or_create_resource(
 # Future extension points
 # -----------------------------------------------------------------------------
 
-# TODO: integrate URL normalization before persistence
-# TODO: integrate hashing for normalized URL values
-# TODO: connect ObservedResource creation with Analysis creation
 # TODO: support repeated occurrence statistics
 # TODO: support future domain exposure or leak-related modules carefully
