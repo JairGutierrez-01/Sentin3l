@@ -37,6 +37,7 @@ Related future modules:
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
 from typing import Optional
+from urllib.parse import urlparse
 
 from sentin3l.models.observed_resource import ObservedResource
 from sentin3l.utils.url_tools import process_url_for_storage

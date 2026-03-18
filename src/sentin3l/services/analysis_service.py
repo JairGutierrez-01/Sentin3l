@@ -1,27 +1,39 @@
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
-from sentin3l.models.observed_resource import ObservedResource
 from sentin3l.models.analysis import Analysis
 from sentin3l.models.analysis_flag import AnalysisFlag
+from sentin3l.models.observed_resource import ObservedResource
+from sentin3l.services import flag_definition_service
+from sentin3l.utils import detectors
 
 
-def _run_security_detectors(safe_url: str, hostname: str) -> list[dict]:
-    """
-    ATTENTION: There is NO database here. Pure cybersecurity logic.
+def run_security_detectors(safe_url: str, hostname: str, registrable_domain: str) -> list[dict]:
+    findings = []
 
-    This internal function will take the clean URL and pass it through our future
-    detection utilities (e.g. check length, search for keywords, etc.).
+    pipeline = [
+        detectors.detect_ip_host(hostname),
+        detectors.detect_long_url(safe_url),
+        detectors.detect_suspicious_tld(registrable_domain),
+        detectors.detect_sensitive_keywords(safe_url),
+        detectors.detect_punycode(hostname),
+        detectors.detect_excessive_subdomains(hostname)
+    ]
 
-    Returns a list with the evidence found.
-    Return example: [{"code": "KEYWORD_MATCH", "evidence": "found 'login' in path"}]
-    """
-    pass  # TODO: Create detectors in a different file (ej. utils/detectors.py)
+    for result in pipeline:
+        if result:
+            findings.append(result)
 
-def _calculate_risk_level(suspicion_score: int) -> str:
-    """
-    Converts a numerical score to a label.
-    Ex: 0-20 = 'Low', 21-50 = 'Medium', 51-100 = 'High'.
-    """
-    pass # TODO: Define the risk
+    return findings
+
+def calculate_risk_level(suspicion_score: int, total_flags: int) -> str:
+    """Determine the risk label based on the cumulative score."""
+    if total_flags == 0:
+        return "Safe"
+    if suspicion_score <= 20:
+        return "Low"
+    if suspicion_score <= 55:
+        return "Medium"
+    return "High"
 
 
 def create_analysis_for_resource(
@@ -29,17 +41,54 @@ def create_analysis_for_resource(
         resource: ObservedResource,
         safe_url: str
 ) -> Analysis:
-    """
-    The main of the Verdict.
+    # Run detectors
+    findings = run_security_detectors(
+        safe_url,
+        resource.hostname,
+        resource.registrable_domain
+    )
 
-    Expected Workflow:
-    1. Call _run_security_detectors(safe_url) to get threats.
-    2. For each threat, look for its FlagDefinition in the DB.
-    3. Create AnalysisFlag instances (relating the Analysis and the FlagDefinition).
-    4. Add the weights of the flags to calculate the final suspicion_score.
-    5. Call _calculate_risk_level() for the risk_level.
-    6. Generate an explanation_text based on the flags found.
-    7. Save the Analysis object (and its cascading flags) to the database.
-    8. Return the Analysis ready.
-    """
-    pass  # TODO: Implement the main 4 model idea here
+    # Initialize the Analysis Object
+    new_analysis = Analysis(
+        observed_resource_id=resource.id,
+        analyzed_at=datetime.now(timezone.utc),
+        suspicion_score=0,
+        explanation_text="",
+        recommendation_text="Observe la URL con cuidado antes de interactuar."
+    )
+
+    # Process each thing found
+    explanations = []
+    for finding in findings:
+        # Look up the definition of the flag in the database to obtain its weight.
+        flag_def = flag_definition_service.get_flag_by_code(db, finding["code"])
+
+        if flag_def:
+            weight = flag_def.default_weight
+            new_analysis.suspicion_score += weight
+
+            # Create the AnalysisFlag relationship (Data Cross referencing)
+            analysis_flag = AnalysisFlag(
+                flag_definition_id=flag_def.id,
+                weight_applied=weight,
+                evidence_summary=finding["evidence"]
+            )
+            # Link the flag to the analysis (SQLAlchemy saves it in cascade)
+            new_analysis.flags.append(analysis_flag)
+            explanations.append(f"- {flag_def.name}: {finding['evidence']}")
+
+    # Finalize verdict metadata
+    new_analysis.risk_level = calculate_risk_level(new_analysis.suspicion_score, len(findings))
+
+    if not findings:
+        new_analysis.explanation_text = "No se detectaron indicadores de riesgo conocidos."
+        new_analysis.recommendation_text = "Esta URL parece segura para navegar."
+    else:
+        new_analysis.explanation_text = "\n".join(explanations)
+
+    # 5. Persistence
+    db.add(new_analysis)
+    db.commit()
+    db.refresh(new_analysis)
+
+    return new_analysis
