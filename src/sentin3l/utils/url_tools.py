@@ -37,17 +37,19 @@ def normalize_and_redact_url(raw_url: str) -> str:
 
 def extract_domain_info(raw_url: str) -> Tuple[str, str]:
     """
-    Extracts the whole hostname and the registrable domain in a precise way
+    Extracts the whole hostname and the registrable domain in a precise way,
+    supporting both standard domains and IP addresses.
     """
+    parsed = urlparse(raw_url)
+    hostname = parsed.hostname or ""
 
-    # tldextract works even if the URL is "dirty"
     extracted = tldextract.extract(raw_url)
-    # union between domain and sufix
-    registrable_domain = f"{extracted.domain}.{extracted.suffix}" if extracted.suffix and extracted.domain else ""
 
-    # the whole hostname includes de subdomain if exist
-    # fqdn means Fully qualified domain name
-    hostname = extracted.fqdn
+
+    if extracted.suffix and extracted.domain:
+        registrable_domain = f"{extracted.domain}.{extracted.suffix}"
+    else:
+        registrable_domain = extracted.domain
 
     return hostname, registrable_domain
 
