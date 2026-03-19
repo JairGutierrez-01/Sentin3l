@@ -46,7 +46,7 @@ def test_analyze_malicious_url(db_session):
     data = response.json()
 
     assert data["verdict"] == "High"
-    assert data["suspicion_score"] == 75
+    assert data["suspicion_score"] == 90
     assert "IP" in data["explanation"]
     assert "login" in data["explanation"]
 

@@ -1,0 +1,74 @@
+[
+  {
+    "code": "IP_IN_HOST",
+    "name": "IP Address in Host",
+    "default_weight": 35,
+    "description": "The use of IP addresses is common to hide the server's identity and evade filters."
+  },
+  {
+    "code": "LONG_URL",
+    "name": "URL is excessively long",
+    "default_weight": 15,
+    "description": "Extremely long URLs can hide malicious parameters or confuse the user."
+  },
+  {
+    "code": "SUSPICIOUS_TLD",
+    "name": "Risk domain extension",
+    "default_weight": 25,
+    "description": "The domain uses an extension (.zip, .tk) frequently used for phishing attacks."
+  },
+  {
+    "code": "SENSITIVE_KEYWORDS",
+    "name": "Social engineering keywords",
+    "default_weight": 40,
+    "description": "Terms such as 'login', 'verify' or 'secure' were detected in a suspicious URL structure, indicating a possible attempt at deception."
+  },
+  {
+    "code": "PUNYCODE_DETECTED",
+    "name": "Punycode (Homograph Attack)",
+    "default_weight": 45,
+    "description": "The domain uses Punycode to display characters that look like normal letters to spoof legitimate brands."
+  },
+  {
+    "code": "EXCESSIVE_SUBDOMAINS",
+    "name": "Excessive Subdomains",
+    "default_weight": 30,
+    "description": "An unusually high number of subdomains is often used to push the real domain out of the user's view on mobile browsers."
+  },
+  {
+    "code": "TYPOSQUATTING",
+    "name": "Brand Typosquatting",
+    "default_weight": 50,
+    "description": "The domain is visually similar to a major monitored brand, but has slight misspellings designed to deceive the user."
+  },
+  {
+    "code": "URL_SHORTENER",
+    "name": "URL Shortener Used",
+    "default_weight": 20,
+    "description": "A URL shortening service is being used, which hides the true destination of the link."
+  },
+  {
+    "code": "BRAND_IMPERSONATION",
+    "name": "Brand in Subdomain",
+    "default_weight": 45,
+    "description": "A monitored brand name appears in the subdomain, but the actual registered domain belongs to someone else."
+  },
+  {
+    "code": "AT_SYMBOL",
+    "name": "Credential Obfuscation (@)",
+    "default_weight": 40,
+    "description": "The URL uses the '@' symbol, a deprecated method for passing credentials that browsers often ignore, redirecting the user to the host after the symbol."
+  },
+  {
+    "code": "DOUBLE_EXTENSION",
+    "name": "Double File Extension",
+    "default_weight": 50,
+    "description": "The URL ends with a double extension (like .pdf.exe). This is a known tactic to disguise malicious executables as harmless documents."
+  },
+  {
+    "code": "INSECURE_URL",
+    "name": "Insecure HTTP Protocol",
+    "default_weight": 15,
+    "description": "The link uses unencrypted HTTP. Any data sent (like passwords) can be intercepted."
+  }
+]

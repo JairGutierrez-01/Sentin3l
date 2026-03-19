@@ -1,0 +1,6 @@
+{
+  "suspicious_tlds": [".zip", ".top", ".xyz", ".pw", ".tk"],
+  "sensitive_keywords": ["login", "verify", "secure", "update", "banking", "confirm"],
+  "url_shorteners": ["bit.ly", "t.co", "tinyurl.com", "is.gd", "buff.ly", "adf.ly", "goo.gl"],
+  "dangerous_extensions": [".html", ".php", ".exe", ".zip", ".pdf"]
+}

@@ -39,7 +39,7 @@ def test_create_analysis_malicious_url(db_session):
     db_session.commit()
 
     # (40 pts)
-    bad_url = "http://192.168.1.100/login/update"
+    bad_url = "https://192.168.1.100/login/update"
     analysis = analysis_service.create_analysis_for_resource(db_session, resource, bad_url)
 
     # ( 75 puntos)
