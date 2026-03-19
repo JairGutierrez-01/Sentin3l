@@ -27,7 +27,7 @@ def test_analyze_safe_url(db_session):
 
     assert response.status_code == 200
     data = response.json()
-    assert data["target_url"] == "https://google.com"
+    assert data["target_url"] == "https://google.com/"
     assert data["verdict"] == "Safe"
     assert data["suspicion_score"] == 0
     assert data["times_analyzed_before"] == 1
@@ -44,8 +44,6 @@ def test_analyze_malicious_url(db_session):
 
     assert response.status_code == 200
     data = response.json()
-
-    print(f"\n--- REPORTE DE LA API: {data} ---\n")
 
     assert data["verdict"] == "High"
     assert data["suspicion_score"] == 75

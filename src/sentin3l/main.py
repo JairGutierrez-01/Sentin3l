@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from sentin3l.config import settings
 from sentin3l.database.init_db import init_db
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl, Field
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -35,7 +35,7 @@ def api_status():
     return {"api": "running"}
 
 class AnalyzeRequest(BaseModel):
-    url: str
+    url: HttpUrl = Field(..., description="URL to analyze", max_length=2048)
 
 
 @app.post("/api/v1/analyze")
@@ -45,12 +45,12 @@ def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
     and returns a security verdict.
     """
     try:
+        url_str = str(request.url)
         # identity
-        resource = observed_resource_service.get_or_create_resource(db, request.url)
-        print(f"\n--- DEBUG HOSTNAME ---: '{resource.hostname}'\n") #<-------
+        resource = observed_resource_service.get_or_create_resource(db, url_str)
 
         #analysis with rules
-        analysis = analysis_service.create_analysis_for_resource(db, resource, request.url)
+        analysis = analysis_service.create_analysis_for_resource(db, resource, url_str)
 
         # response
         return {

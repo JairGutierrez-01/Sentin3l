@@ -1,26 +1,25 @@
-import re
 import logging
+import ipaddress
 
 logger = logging.getLogger(__name__)
 
 def detect_ip_host(hostname: str) -> dict | None:
-
-    # Simple regex to detect patterns in IPv4
-    ip_pattern = r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$"
-
-    if re.match(ip_pattern, hostname):
+    try:
+        # Intenta parsear como IPv4 o IPv6
+        ipaddress.ip_address(hostname)
         return {
             "code": "IP_IN_HOST",
-            "evidence": f"The Host '{hostname}' is an IP address, which is really inusual for legit sites",
+            "evidence": f"The host '{hostname}' is a raw IP address. Legitimate services almost always use domain names.",
         }
-    return None
+    except ValueError:
+        return None
 
 
-def detect_long_url(safe_url: str, limit: int = 100) -> dict | None:
-    if len(safe_url) > limit:
+def detect_long_url(url: str, limit: int = 100) -> dict | None:
+    if len(url) > limit:
         return {
             "code": "LONG_URL",
-            "evidence": f"The URL has {len(safe_url)} characters, which is too long and overcomes the recommended limit of {limit}",
+            "evidence": f"The URL has {len(url)} characters, which is too long and overcomes the recommended limit of {limit}",
         }
     return None
 
@@ -43,10 +42,10 @@ def detect_suspicious_tld(registrable_domain: str) -> dict | None:
     return None
 
 
-def detect_sensitive_keywords(safe_url: str) -> dict | None:
+def detect_sensitive_keywords(url: str) -> dict | None:
 
     keywords = ["login", "verify", "secure", "update", "banking", "confirm"]
-    url_lower = safe_url.lower()
+    url_lower = url.lower()
 
     found = [word for word in keywords if word in url_lower]
 

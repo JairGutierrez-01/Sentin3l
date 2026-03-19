@@ -7,14 +7,14 @@ from sentin3l.services import flag_definition_service
 from sentin3l.utils import detectors
 
 
-def run_security_detectors(safe_url: str, hostname: str, registrable_domain: str) -> list[dict]:
+def run_security_detectors(raw_url: str, hostname: str, registrable_domain: str) -> list[dict]:
     findings = []
 
     pipeline = [
         detectors.detect_ip_host(hostname),
-        detectors.detect_long_url(safe_url),
+        detectors.detect_long_url(raw_url),
         detectors.detect_suspicious_tld(registrable_domain),
-        detectors.detect_sensitive_keywords(safe_url),
+        detectors.detect_sensitive_keywords(raw_url),
         detectors.detect_punycode(hostname),
         detectors.detect_excessive_subdomains(hostname)
     ]
@@ -39,11 +39,11 @@ def calculate_risk_level(suspicion_score: int, total_flags: int) -> str:
 def create_analysis_for_resource(
         db: Session,
         resource: ObservedResource,
-        safe_url: str
+        raw_url: str
 ) -> Analysis:
     # Run detectors
     findings = run_security_detectors(
-        safe_url,
+        raw_url,
         resource.hostname,
         resource.registrable_domain
     )

@@ -19,7 +19,7 @@ def test_create_analysis_safe_url(db_session):
     db_session.commit()
 
     safe_url = "https://google.com/search"
-    analysis = analysis_service.create_analysis_for_resource(db_session, resource, safe_url)
+    analysis = analysis_service.create_analysis_for_resource(db_session, resource, raw_url=safe_url)
 
     assert analysis.suspicion_score == 0
     assert analysis.risk_level == "Safe"
