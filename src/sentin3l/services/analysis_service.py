@@ -1,11 +1,10 @@
 from datetime import datetime, timezone
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sentin3l.models.analysis import Analysis
 from sentin3l.models.analysis_flag import AnalysisFlag
 from sentin3l.models.observed_resource import ObservedResource
 from sentin3l.services import flag_definition_service
 from sentin3l.utils import detectors
-from urllib.parse import urlparse
 from sentin3l.services import brand_service
 import json
 import os
@@ -125,3 +124,16 @@ def create_analysis_for_resource(
     db.refresh(new_analysis)
 
     return new_analysis
+
+def get_recent_analyses(db: Session, limit: int = 10):
+    """"
+    Retrieves the latest analyses performed to display them in the global feed.
+    Uses 'joinedload' to retrieve the information from ObservedResource in a single query.
+    """
+    return (
+        db.query(Analysis)
+        .options(joinedload(Analysis.resource)) # Carga la relación ObservedResource
+        .order_by(Analysis.analyzed_at.desc())
+        .limit(limit)
+        .all()
+    )

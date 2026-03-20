@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from sentin3l.config import settings
 from sentin3l.database.init_db import init_db
-from pydantic import BaseModel, HttpUrl, Field
+from pydantic import BaseModel, HttpUrl, Field, ValidationError
 from fastapi import Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from sentin3l.api.schemas import AnalysisResponse
+from typing import List
 from sentin3l.database.session import get_db
 from sentin3l.services import observed_resource_service, analysis_service
+from sentin3l.utils.url_tools import process_url_for_storage
+from sentin3l.api.schemas import AnalysisResponse
+
 
 app = FastAPI(
     title=settings.project_name,
@@ -38,28 +42,63 @@ class AnalyzeRequest(BaseModel):
     url: HttpUrl = Field(..., description="URL to analyze", max_length=2048)
 
 
-@app.post("/api/v1/analyze")
+@app.post("/api/v1/analyze", response_model=AnalysisResponse)
 def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
     """
-    It receives a suspicious URL, processes it through detectors,
-    and returns a security verdict.
+    Primary entry point for URL analysis.
+    Processes the URL, applies security heuristics, and persists the results.
     """
     try:
         url_str = str(request.url)
-        # identity
+
+        url_metadata = process_url_for_storage(url_str)
+
         resource = observed_resource_service.get_or_create_resource(db, url_str)
 
-        #analysis with rules
         analysis = analysis_service.create_analysis_for_resource(db, resource, url_str)
 
-        # response
         return {
-            "target_url": request.url,
-            "verdict": analysis.risk_level,
+            "id": analysis.id,
+            "target_url": url_str,
+            "safe_url": url_metadata["safe_url"],
             "suspicion_score": analysis.suspicion_score,
-            "explanation": analysis.explanation_text,
-            "recommendation": analysis.recommendation_text,
-            "times_analyzed_before": resource.occurrence_count
+            "risk_level": analysis.risk_level,
+            "explanation_text": analysis.explanation_text,
+            "recommendation_text": analysis.recommendation_text,
+            "times_analyzed_before": resource.occurrence_count,
+            "analyzed_at": analysis.analyzed_at,
+            "flags": [
+                {
+                    "code": f.definition.code,
+                    "evidence_summary": f.evidence_summary
+                } for f in analysis.flags
+            ]
         }
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+
+        raise HTTPException(status_code=500, detail=f"Error interno en el motor de análisis: {str(e)}")
+
+
+@app.get("/api/v1/recent", response_model=List[AnalysisResponse])
+def get_recent_activity(db: Session = Depends(get_db), limit: int = 10):
+    """
+    Returns a global feed of the most recent analyses.
+    Ideal for populating the main frontend table without requiring a login.
+    """
+    recent_list = analysis_service.get_recent_analyses(db, limit=limit)
+
+    return [
+        {
+            **a.__dict__,
+            "target_url": a.resource.hostname,  # for privacy, no raw_url
+            "safe_url": "Propiedad de la DB o generada",
+            "times_analyzed_before": a.resource.occurrence_count,
+            "flags": [
+                {
+                    "code": f.definition.code,
+                    "evidence_summary": f.evidence_summary
+                } for f in a.flags
+            ]
+        } for a in recent_list
+    ]
