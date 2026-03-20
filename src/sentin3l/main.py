@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from sentin3l.config import settings
 from sentin3l.database.init_db import init_db
 from pydantic import BaseModel, HttpUrl, Field, ValidationError
@@ -10,23 +10,28 @@ from sentin3l.database.session import get_db
 from sentin3l.services import observed_resource_service, analysis_service
 from sentin3l.utils.url_tools import process_url_for_storage
 from sentin3l.api.schemas import AnalysisResponse
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+import traceback
 
 
-app = FastAPI(
-    title=settings.project_name,
-    version=settings.version,
-)
+app = FastAPI()
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "..", "frontend")
+
+static_dir = os.path.join(FRONTEND_DIR, "static")
+templates_dir = os.path.join(FRONTEND_DIR, "templates")
+
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
+templates = Jinja2Templates(directory=templates_dir)
 
 init_db()
 
 @app.get("/")
-def read_root():
-    return {
-        "status": "online",
-        "system": settings.project_name,
-        "version": settings.version,
-        "debug": settings.debug,
-    }
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/health")
@@ -76,8 +81,8 @@ def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
         }
 
     except Exception as e:
-
-        raise HTTPException(status_code=500, detail=f"Error interno en el motor de análisis: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/v1/recent", response_model=List[AnalysisResponse])

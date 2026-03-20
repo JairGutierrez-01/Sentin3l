@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en", class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentin3l | Read between the links </title>
+    <script src=" https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+<body class="bg-darkbg text-slate-300 min-h-screen font-sans antialiased">
+
+    <main class="max-w-5xl mx-auto px-4 py-12">
+        <header class="mb-12 text-center md:text-left">
+            <h1 class="text-3xl font-bold text-white tracking-tight">Sentin3l</h1>
+            <p class="text-slate-400 mt-2">Spot the F(ph)ishing.</p>
+        </header>
+
+        <div id="app-container">
+            <p class="text-emerald-400">text here</p>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+
+<section class="flex flex-col items-center justify-center py-10">
+    <div class="w-full max-w-2xl">
+        <div class="relative group">
+            <input
+                type="text"
+                id="url-input"
+                placeholder="Enter a suspicious URL (e.g., https://n3tflix-login.com)..."
+                class="w-full bg-slate-800/50 border border-slate-700 text-white rounded-xl py-4 px-6 pr-32 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all duration-300 backdrop-blur-sm"
+            >
+            <button
+                id="analyze-btn"
+                class="absolute right-2 top-2 bottom-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+                <span>Analyze</span>
+            </button>
+        </div>
+        <p id="error-message" class="text-red-400 text-sm mt-3 hidden"></p>
+    </div>
+</section>
+
+<section id="results-container" class="mt-12 hidden space-y-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-1 bg-slate-800/40 p-6 rounded-2xl border border-slate-700 text-center">
+            <h3 class="text-slate-400 text-sm uppercase tracking-wider mb-2">Suspicion Score</h3>
+            <div id="risk-score" class="text-6xl font-black text-white">0</div>
+        </div>
+        <div id="verdict-card" class="md:col-span-2 p-6 rounded-2xl border flex flex-col justify-center">
+            <h2 id="risk-level" class="text-3xl font-bold uppercase tracking-tight">--</h2>
+            <p id="explanation-text" class="text-slate-300 mt-2"></p>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-xl font-semibold text-white mb-4">Why this matters</h3>
+        <div id="flags-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            </div>
+    </div>
+</section>
+
+<section class="mt-16 pt-8 border-t border-slate-800">
+    <h3 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Live Activity
+    </h3>
+
+    <div id="recent-carousel" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+    <p class="text-slate-500 italic w-full text-center py-8 col-span-full" id="carousel-loading">Loading recent community scans...</p>
+    </div>
+</section>
+
+<style>
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+</body>
+</html>

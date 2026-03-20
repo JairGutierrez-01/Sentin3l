@@ -86,7 +86,7 @@ def create_analysis_for_resource(
         analyzed_at=datetime.now(timezone.utc),
         suspicion_score=0,
         explanation_text="",
-        recommendation_text="Observe la URL con cuidado antes de interactuar."
+        recommendation_text="Look at the URL carefully before interacting."
     )
 
     # Process each thing found
@@ -113,8 +113,8 @@ def create_analysis_for_resource(
     new_analysis.risk_level = calculate_risk_level(new_analysis.suspicion_score, len(findings))
 
     if not findings:
-        new_analysis.explanation_text = "No se detectaron indicadores de riesgo conocidos."
-        new_analysis.recommendation_text = "Esta URL parece segura para navegar."
+        new_analysis.explanation_text = "No known risk indicators were detected."
+        new_analysis.recommendation_text = "This URL appears safe to browse."
     else:
         new_analysis.explanation_text = "\n".join(explanations)
 
