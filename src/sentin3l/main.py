@@ -75,6 +75,8 @@ def analyze_url(request: AnalyzeRequest, db: Session = Depends(get_db)):
             "flags": [
                 {
                     "code": f.definition.code,
+                    "name": f.definition.name,
+                    "description": f.definition.description,
                     "evidence_summary": f.evidence_summary
                 } for f in analysis.flags
             ]
@@ -102,6 +104,8 @@ def get_recent_activity(db: Session = Depends(get_db), limit: int = 10):
             "flags": [
                 {
                     "code": f.definition.code,
+                    "name": f.definition.name,
+                    "description": f.definition.description,
                     "evidence_summary": f.evidence_summary
                 } for f in a.flags
             ]

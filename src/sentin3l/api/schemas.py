@@ -2,11 +2,14 @@ from pydantic import BaseModel, HttpUrl, Field
 from typing import Optional, List
 from datetime import datetime
 
+
 class AnalysisFlagSchema(BaseModel):
     code: str
     evidence_summary: str
+    name: Optional[str] = "Unknown Flag"
+    description: Optional[str] = "Description not available yet."
 
-    class config:
+    class Config:
         from_attributes = True
 
 class AnalysisResponse(BaseModel):
