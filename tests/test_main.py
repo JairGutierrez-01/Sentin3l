@@ -1,6 +1,5 @@
-from sentin3l.database.session import get_db
-from sentin3l.services import flag_definition_service
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 from sentin3l.main import app
 from sentin3l.database.session import get_db
 from sentin3l.services import flag_definition_service
@@ -8,19 +7,30 @@ from sentin3l.services import flag_definition_service
 client = TestClient(app)
 
 def test_root():
+    """Verifies that the root endpoint successfully serves the frontend HTML template."""
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["system"] == "Sentin3l"
+    # Since it serves HTML via Jinja2, we check the Content-Type header instead of parsing JSON
+    assert "text/html" in response.headers["content-type"]
 
 
 def test_health():
+    """Validates the basic health check endpoint."""
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
 
-def test_analyze_safe_url(db_session):
-    app.dependency_overrides[get_db] = lambda: db_session
 
+def test_api_status():
+    """Validates the API system status response."""
+    response = client.get("/api/status")
+    assert response.status_code == 200
+    assert response.json()["api"] == "running"
+
+
+def test_analyze_safe_url(db_session: Session):
+    """Verifies that a known safe URL triggers no threat flags and updates stats."""
+    app.dependency_overrides[get_db] = lambda: db_session
     flag_definition_service.seed_default_flags(db_session)
 
     response = client.post("/api/v1/analyze", json={"url": "https://google.com"})
@@ -35,7 +45,8 @@ def test_analyze_safe_url(db_session):
     app.dependency_overrides.clear()
 
 
-def test_analyze_malicious_url(db_session):
+def test_analyze_malicious_url(db_session: Session):
+    """Verifies that an IP-based URL structure triggers a High-risk verdict with proper evidence."""
     app.dependency_overrides[get_db] = lambda: db_session
     flag_definition_service.seed_default_flags(db_session)
 
@@ -53,11 +64,8 @@ def test_analyze_malicious_url(db_session):
     app.dependency_overrides.clear()
 
 
-def test_get_recent_activity(db_session):
-    """
-    Verify that the /recent endpoint returns the analyses performed
-    and that it respects the defined data structure.
-    """
+def test_get_recent_activity(db_session: Session):
+    """Verifies that the recent feed returns data structures conforming to the AnalysisResponse schema."""
     app.dependency_overrides[get_db] = lambda: db_session
     flag_definition_service.seed_default_flags(db_session)
 

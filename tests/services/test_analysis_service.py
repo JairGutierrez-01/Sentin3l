@@ -24,7 +24,7 @@ def test_create_analysis_safe_url(db_session):
     assert analysis.suspicion_score == 0
     assert analysis.risk_level == "Safe"
     assert len(analysis.flags) == 0
-    assert "segura" in analysis.recommendation_text.lower()
+    assert "safe" in analysis.recommendation_text.lower()
 
 
 def test_create_analysis_malicious_url(db_session):
